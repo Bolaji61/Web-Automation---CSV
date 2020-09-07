@@ -37,30 +37,35 @@ def upload():
     if not csvfile:
         return "No file"
 
-    # file_contents = csvfile.stream.read().decode("utf-8")
     stream = io.StringIO(csvfile.stream.read().decode("UTF8"), newline=None)
     data = csv.reader(stream)
-    first_line = True
-    data_dict = []
+    
+    next(data)   #skip first line of csv file
+    print(data)
+    # data_dict = []
     for row in data:
-        if not first_line:
-            data_dict.append({
-                "username": row[0],
-                "login_email": row[1],
-                "identifier": row[2],
-                "first_name": row[3],
-                "last_name": row[4]
-            })
-        else:
-            first_line = False
-
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO csvdata(username, login_email, identifier, first_name, last_name) VALUES (%s, %s, %s, %s, %s)", \
-            ("username", "login_email", "identifier", "first_name", "last_name"))
-        mysql.connection.commit()
-        cur.close()
+        # data_dict.append({
+        #     username: row[0],
+        #     "login_email": row[1],
+        #     "identifier": row[2],
+        #     "first_name": row[3],
+        #     "last_name": row[4]
+        # })
+        username = row[0]
+        login_email =row[1]
+        identifier = row[2]
+        first_name =row[3]
+        last_name = row[4]
+        print("ROW", row)
+        # print(data_dict)
         
-    return "Congrats, you are now a registered user!"
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO csvdata(username, login_email, identifier, first_name, last_name) VALUES (%s, %s, %s, %s, %s)", \
+        (username, login_email, identifier, first_name, last_name))
+    mysql.connection.commit()
+    cur.close()
+        
+    return "File uploaded successfully"
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
