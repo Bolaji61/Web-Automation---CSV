@@ -4,13 +4,20 @@
         <title>CSV Upload</title>
         <!-- css styling -->
         <style type = "text/css">
-            .table {margin: auto; margin-top: 100px;}
+            .table {margin-left: 30px; margin-top: 20px;}
             .heading {font-weight: bolder;}
             th, td {border: 1px solid black};
         </style>
     </head>
 
     <body>
+        <button
+            onclick="window.location.href='/'"
+            style="width:80px; height: 30px;"
+        >
+            &lt; Back
+        </button>
+
         <!-- Flash message -->
         {% with messages = get_flashed_messages() %}
          {% if messages %}
@@ -25,31 +32,24 @@
         <!-- Table elements -->
         <table class="table">
             <!--table heading -->
-            <thead>  
+            <thead>
             <tr class="heading">
-                <th> {{field_names[0]}} </th>
-                <th> {{field_names[1]}} </th>
-                <th> {{field_names[2]}} </th>
-                <th> {{field_names[3]}} </th>
-                <th> {{field_names[4]}} </th>
-                <th> {{field_names[5]}} </th>
-                <th> {{field_names[6]}} </th>
-                <th> {{field_names[7]}} </th>
+                <th>ID</th>
+            {% for field in field_names %}
+                <th> {{ field }} </th>
+            {% endfor %}
             </tr>
             </thead>
             <!--table body -->
+            <tbody>
             {% for row in output_data %}
-            <tr>
-                <td>{{row[0]}}</td>
-                <td>{{row[1]}}</td>
-                <td>{{row[2]}}</td>
-                <td>{{row[3]}}</td>
-                <td>{{row[4]}}</td>
-                <td>{{row[5]}}</td>
-                <td>{{row[6]}}</td>
-                <td>{{row[7]}}</td>
-            </tr>
+                <tr>
+                {% for value in row %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+                </tr>
             {% endfor %}
+            </tbody>
         </table>
     </body>
 </html>
