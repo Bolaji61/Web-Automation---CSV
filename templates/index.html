@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CSV Upload</title>
+        <style type = "text/css">
+            .table {margin: auto; margin-top: 100px;}
+            .heading {font-weight: bolder;}
+            th, td {border: 1px solid black};
+        </style>
+    </head>
+    <body>
+        <table class="table">
+            <thead>
+            <tr class="heading">
+                <th> {{field_names[0]}} </th>
+                <th> {{field_names[1]}} </th>
+                <th> {{field_names[2]}} </th>
+                <th> {{field_names[3]}} </th>
+                <th> {{field_names[4]}} </th>
+                <th> {{field_names[5]}} </th>
+                <th> {{field_names[6]}} </th>
+                <th> {{field_names[7]}} </th>
+            </tr>
+            </thead>
+            
+            {% for row in output_data %}
+            <tr>
+                <td>{{row[0]}}</td>
+                <td>{{row[1]}}</td>
+                <td>{{row[2]}}</td>
+                <td>{{row[3]}}</td>
+                <td>{{row[4]}}</td>
+                <td>{{row[5]}}</td>
+                <td>{{row[6]}}</td>
+                <td>{{row[7]}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
