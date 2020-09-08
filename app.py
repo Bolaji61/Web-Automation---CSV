@@ -74,7 +74,7 @@ def upload():
     mysql.connection.commit()
     cur.close()
 
-    flash("File uploaded successfully")
+    flash(message="File uploaded successfully")
     return render_template(
         "index.html", output_data=table_data, field_names=field_names
     )
