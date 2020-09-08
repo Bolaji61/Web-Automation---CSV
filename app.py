@@ -1,20 +1,25 @@
-import os
-import csv
-from flask import Flask, render_template, request, make_response, redirect, url_for, flash
-from flask_mysqldb import MySQL
 import io
+import csv
+from flask import (
+    Flask,
+    render_template,
+    request,
+    flash,
+)
+from flask_mysqldb import MySQL
 
 app = Flask(__name__)
-app.secret_key = b'asdf;lkj1234567890'
+app.secret_key = b"asdf;lkj1234567890"
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'password'
-app.config['MYSQL_DB'] = 'invisible'
+app.config["MYSQL_HOST"] = "localhost"
+app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = "password"
+app.config["MYSQL_DB"] = "invisible"
 
 mysql = MySQL(app)
 
-@app.route('/')
+
+@app.route("/")
 def index():
     return """
         <html>
@@ -34,42 +39,47 @@ def index():
         </html>
     """
 
-@app.route('/upload', methods=["POST"])
+
+@app.route("/upload", methods=["POST"])
 def upload():
     cur = mysql.connection.cursor()
 
-    csvfile = request.files['data_file']
+    csvfile = request.files["data_file"]
     if not csvfile:
         return "No file"
 
     stream = io.StringIO(csvfile.stream.read().decode("UTF8"), newline=None)
     data = csv.reader(stream)
 
-    next(data)   #skip first line of csv file
+    next(data)  # skip first line of csv file
     for row in data:
         orderDate = row[0]
-        region =row[1]
+        region = row[1]
         rep = row[2]
-        item =row[3]
+        item = row[3]
         units = row[4]
         unitCost = row[5]
         total = row[6]
-        
-        cur.execute("INSERT INTO csv_data (orderDate, region, rep, item, units, unitCost, total) VALUES (%s, %s, %s, %s, %s, %s, %s)", \
-            (orderDate, region, rep, item, units, unitCost, total))
-    
-        cur.execute('SELECT * FROM csv_data')
+
+        cur.execute(
+            "INSERT INTO csv_data (orderDate, region, rep, item, units, unitCost, total) \
+                VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (orderDate, region, rep, item, units, unitCost, total),
+        )
+
+        cur.execute("SELECT * FROM csv_data")
         table_data = cur.fetchall()
 
-
-    num_fields = len(cur.description)
     field_names = [i[0] for i in cur.description]
     mysql.connection.commit()
     cur.close()
 
     flash("File uploaded successfully")
     print(table_data)
-    return render_template('index.html', output_data = table_data, field_names=field_names)
+    return render_template(
+        "index.html", output_data=table_data, field_names=field_names
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)
