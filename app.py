@@ -11,10 +11,10 @@ from flask_mysqldb import MySQL
 app = Flask(__name__)
 app.secret_key = b"asdf;lkj1234567890"
 
-app.config["MYSQL_HOST"] = "127.0.0.1"
-app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_PASSWORD"] = "password"
-app.config["MYSQL_DB"] = "invisible"
+app.config["MYSQL_HOST"] = "us-cdbr-east-02.cleardb.com"
+app.config["MYSQL_USER"] = "bbd5c9ff81e3c1"
+app.config["MYSQL_PASSWORD"] = "d6be6e85"
+app.config["MYSQL_DB"] = "heroku_72bef458f9f5c50"
 
 mysql = MySQL(app)
 
