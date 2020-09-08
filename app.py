@@ -21,6 +21,7 @@ mysql = MySQL(app)
 
 @app.route("/")
 def index():
+    #render html template
     return """
         <html>
             <body>
@@ -42,14 +43,18 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    cur = mysql.connection.cursor()
+    """
+    Returns: Webpage showing table form of csv input
+    """
+    
+    cur = mysql.connection.cursor()  #connect to mysql
 
-    csvfile = request.files["data_file"]
+    csvfile = request.files["data_file"] #import csv data
     if not csvfile:
         return "No file"
 
     stream = io.StringIO(csvfile.stream.read().decode("UTF8"), newline=None)
-    data = csv.reader(stream)
+    data = csv.reader(stream) #read csv input
 
     next(data)  # skip first line of csv file
     for row in data:
@@ -61,6 +66,7 @@ def upload():
         unitCost = row[5]
         total = row[6]
 
+        #execute SQL statements
         cur.execute(
             "INSERT INTO csv_data (orderDate, region, rep, item, units, unitCost, total) \
                 VALUES (%s, %s, %s, %s, %s, %s, %s)",
@@ -68,13 +74,13 @@ def upload():
         )
 
         cur.execute("SELECT * FROM csv_data")
-        table_data = cur.fetchall()
+        table_data = cur.fetchall()  #fetch all data in table database
 
-    field_names = [i[0] for i in cur.description]
+    field_names = [i[0] for i in cur.description]  #retrieve column names
     mysql.connection.commit()
     cur.close()
 
-    flash(message="File uploaded successfully")
+    flash(message="File uploaded successfully") #flash message
     return render_template(
         "index.html", output_data=table_data, field_names=field_names
     )
