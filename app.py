@@ -1,4 +1,4 @@
-import io
+import io 
 import csv
 from flask import (
     Flask,
@@ -7,9 +7,10 @@ from flask import (
     flash,
 )
 from flask_mysqldb import MySQL
+import re
 
 app = Flask(__name__)
-app.secret_key = b"asdf;lkj1234567890"
+app.secret_key = "some_random_key"
 
 app.config["MYSQL_HOST"] = "us-cdbr-east-02.cleardb.com"
 app.config["MYSQL_USER"] = "bbd5c9ff81e3c1"
@@ -25,12 +26,13 @@ def index():
     return """
         <html>
             <body>
-            <div style="padding-top: 250px; ">
-                <h1 style="text-align: center; font-size: 2em;"> Extract data from CSV</h1>
+            <div style="padding-top: 10px; padding-left: 20px; ">
+                <h1 style="text-align: left; font-size: 2em;"> Extract data from CSV</h1>
 
                 <form action="/upload" method="post" enctype="multipart/form-data" >
-                    <div align="center" >
+                    <div align="left" >
                         <input type="file" name="data_file" style="font-size:1em;"/>
+                        <br>
                         <br>
                         <input type="submit" name="csv_upload_btn" value="Upload" style="font-size:0.8em;"/>
                     </div>
@@ -46,37 +48,38 @@ def upload():
     """
     Returns: Webpage showing table form of csv input
     """
-    
+
     cur = mysql.connection.cursor()  #connect to mysql
 
     csvfile = request.files["data_file"] #import csv data
     if not csvfile:
-        return "No file"
-
+            return "No file"
     stream = io.StringIO(csvfile.stream.read().decode("UTF8"), newline=None)
-    data = csv.reader(stream) #read csv input
+    data = list(csv.reader(stream))
+    field_names, first_row = data[0:2]
+    field_names = convert_to_snakecase(field_names)
+    field_types = determine_field_type(first_row)
+    table_name = convert_to_snakecase([csvfile.filename])[0]
+ 
+    res = []
+    for k, j in zip(field_names, field_types):
+        res.append("{} {}".format(k, j))
+    fields = ", ".join(res)
+    create_query = "CREATE TABLE IF NOT EXISTS {} (id INT AUTO_INCREMENT PRIMARY KEY, {})".format(table_name, fields)
+    cur.execute(create_query)
 
-    next(data)  # skip first line of csv file
-    for row in data:
-        orderDate = row[0]
-        region = row[1]
-        rep = row[2]
-        item = row[3]
-        units = row[4]
-        unitCost = row[5]
-        total = row[6]
+    insert_query = "INSERT INTO {} ({}) VALUES ({})".format(table_name, ", ".join(field_names), ", ".join(["%s"] * len(field_names)))
+    data_to_insert = []
 
-        #execute SQL statements
-        cur.execute(
-            "INSERT INTO csv_data (orderDate, region, rep, item, units, unitCost, total) \
-                VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (orderDate, region, rep, item, units, unitCost, total),
-        )
+    for row in data[1:]:
+        data_to_insert.append(tuple(row))
 
-        cur.execute("SELECT * FROM csv_data")
-        table_data = cur.fetchall()  #fetch all data in table database
+    cur.executemany(insert_query, data_to_insert)
 
-    field_names = [i[0] for i in cur.description]  #retrieve column names
+    #execute SQL statements
+    cur.execute("SELECT * FROM {}".format(table_name))
+    table_data = cur.fetchall()  #fetch all data in table database
+
     mysql.connection.commit()
     cur.close()
 
@@ -84,6 +87,31 @@ def upload():
     return render_template(
         "index.html", output_data=table_data, field_names=field_names
     )
+
+
+def convert_to_snakecase(field_names = []):
+    escaped_field_names = []
+    for col_name in field_names:
+        output = re.sub('[^0-9a-zA-Z]+', "_", col_name)
+        escaped_field_names.append(output)
+    return escaped_field_names
+
+
+def determine_field_type(first_row = []):
+    data_types = []
+    for col in first_row:
+        _type = ""
+        try:
+            float(col)
+            _type = "FLOAT"
+            try:
+                int(col)
+                _type = "INT"
+            except: pass
+        except ValueError:
+            _type = "VARCHAR(255)"
+        data_types.append(_type)
+    return data_types
 
 
 if __name__ == "__main__":
