@@ -2,13 +2,16 @@
 <html>
     <head>
         <title>CSV Upload</title>
+        <!-- css styling -->
         <style type = "text/css">
             .table {margin: auto; margin-top: 100px;}
             .heading {font-weight: bolder;}
             th, td {border: 1px solid black};
         </style>
     </head>
+
     <body>
+        <!-- Flash message -->
         {% with messages = get_flashed_messages() %}
          {% if messages %}
             <ul>
@@ -17,9 +20,12 @@
                {% endfor %}
             </ul>
          {% endif %}
-      {% endwith %}
+        {% endwith %}
+
+        <!-- Table elements -->
         <table class="table">
-            <thead>
+            <!--table heading -->
+            <thead>  
             <tr class="heading">
                 <th> {{field_names[0]}} </th>
                 <th> {{field_names[1]}} </th>
@@ -31,7 +37,7 @@
                 <th> {{field_names[7]}} </th>
             </tr>
             </thead>
-            
+            <!--table body -->
             {% for row in output_data %}
             <tr>
                 <td>{{row[0]}}</td>
