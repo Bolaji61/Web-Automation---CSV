@@ -11,7 +11,7 @@ from flask_mysqldb import MySQL
 app = Flask(__name__)
 app.secret_key = b"asdf;lkj1234567890"
 
-app.config["MYSQL_HOST"] = "localhost"
+app.config["MYSQL_HOST"] = "127.0.0.1"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = "password"
 app.config["MYSQL_DB"] = "invisible"
@@ -75,7 +75,6 @@ def upload():
     cur.close()
 
     flash("File uploaded successfully")
-    print(table_data)
     return render_template(
         "index.html", output_data=table_data, field_names=field_names
     )
