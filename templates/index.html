@@ -4,7 +4,7 @@
         <title>CSV Upload</title>
         <!-- css styling -->
         <style type = "text/css">
-            .table {margin-left: 30px; margin-top: 20px;}
+            .table {margin-left: 30px; margin-top: 20px; border-collapse: collapse;}
             .heading {font-weight: bolder;}
             th, td {border: 1px solid black};
         </style>
@@ -34,7 +34,6 @@
             <!--table heading -->
             <thead>
             <tr class="heading">
-                <th>ID</th>
             {% for field in field_names %}
                 <th> {{ field }} </th>
             {% endfor %}
