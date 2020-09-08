@@ -65,7 +65,7 @@ def upload():
     for k, j in zip(field_names, field_types):
         res.append("{} {}".format(k, j))
     fields = ", ".join(res)
-    create_query = "CREATE TABLE IF NOT EXISTS {} (id INT AUTO_INCREMENT PRIMARY KEY, {})".format(table_name, fields)
+    create_query = "CREATE TABLE IF NOT EXISTS {} ({})".format(table_name, fields)
     cur.execute(create_query)
 
     insert_query = "INSERT INTO {} ({}) VALUES ({})".format(table_name, ", ".join(field_names), ", ".join(["%s"] * len(field_names)))
